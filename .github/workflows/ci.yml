@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        language: [python, java, node, go]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up ${{ matrix.language }}
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v2
+      with: 
+        python-version: '3.x'
+    - name: Set up ${{ matrix.language }}
+      if: matrix.language == 'java'
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+    - name: Set up ${{ matrix.language }}
+      if: matrix.language == 'node'
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Set up ${{ matrix.language }}
+      if: matrix.language == 'go'
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.15'
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.language }}" == "python" ]; then
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        elif [ "${{ matrix.language }}" == "java" ]; then
+          ./mvnw install
+        elif [ "${{ matrix.language }}" == "node" ]; then
+          npm install
+        elif [ "${{ matrix.language }}" == "go" ]; then
+          go mod download
+        fi
+
+    - name: Run tests
+      run: |
+        if [ "${{ matrix.language }}" == "python" ]; then
+          python -m unittest discover
+        elif [ "${{ matrix.language }}" == "java" ]; then
+          ./mvnw test
+        elif [ "${{ matrix.language }}" == "node" ]; then
+          npm test
+        elif [ "${{ matrix.language }}" == "go" ]; then
+          go test ./...
+        fi
