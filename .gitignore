@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Java
+target/
+*.class
+
+# Node
+node_modules/
+
+# Golang
+bin/
